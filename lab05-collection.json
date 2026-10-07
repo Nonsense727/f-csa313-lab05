@@ -1,0 +1,140 @@
+{
+  "info": {
+    "_postman_id": "b7e3f1a2-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+    "name": "Lab05 — Хичээлд бүртгүүлэх API (F.CSA313)",
+    "description": "Лекц 5-ын тест дизайны 5 алхам — POST /registrations функц.\n\nТест бүр БИЕ ДААСАН: өөрийн setup PUT хүсэлтүүдээ өөрөө хийнэ (Лекц 4-ийн test independence).\nregistrationID-ийн яг утгыг шалгахгүй — сервер in-memory тул ажиллуулах бүрд хуримтлагдана.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 — Happy path: идэвхтэй оюутан, урьдач нөхцөл хангасан → 201 OK",
+      "item": [
+        {
+          "name": "setup — PUT /students/B231234567 (active, took CS201)",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\"CS201\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/students/B231234567",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "B231234567"
+              ]
+            },
+            "description": "Setup: идэвхтэй, CS201 үзсэн оюутан үүсгэх."
+          },
+          "response": []
+        },
+        {
+          "name": "setup — PUT /courses/CS313 (prerequisites: CS201)",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": [\"CS201\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/courses/CS313",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "CS313"
+              ]
+            },
+            "description": "Setup: CS201 урьдач нөхцөлтэй CS313 хичээл үүсгэх."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations — 201 ба result=OK",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — статус код",
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Oracle 2 — хариуны утга",
+                  "pm.test(\"Body result is \\\"OK\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"OK\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B231234567\",\n  \"courseID\": \"CS313\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "Тестлэгдэх функц. Идэвхтэй оюутан CS201 үзсэн, CS313-д CS201 шаарддаг → амжилттай бүртгэл."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ]
+}

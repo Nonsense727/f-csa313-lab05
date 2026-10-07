@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Lab archives (not part of the deliverable)
+server.rar
+
+# Assistant workspace data
+.workbuddy-ai/
+
+# Teacher's assignment document (must NOT be in the repo)
+Lab05 - API систем тест Postman Newman (2026) 1.docx
