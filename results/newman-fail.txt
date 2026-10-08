@@ -1,0 +1,162 @@
+newman
+
+Lab05 — Хичээлд бүртгүүлэх API (F.CSA313) — FAIL хувилбар
+
+❏ 01 — Happy path: идэвхтэй оюутан, урьдач нөхцөл хангасан → 201 OK
+↳ setup — PUT /students/B231234567
+  PUT http://localhost:3000/students/B231234567 [200 OK, 178B, 14ms]
+
+↳ setup — PUT /courses/CS313
+  PUT http://localhost:3000/courses/CS313 [200 OK, 178B, 2ms]
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [201 Created, 203B, 2ms]
+  1. Status code is 200 OK
+  ✓  Body result is "OK"
+  ✓  registrationID is a positive number (exact value not asserted)
+
+❏ 02 — Идэвхгүй оюутан бүртгүүлэхэд ERROR_INACTIVE_STUDENT
+↳ setup — PUT /students/B000000002
+  PUT http://localhost:3000/students/B000000002 [200 OK, 178B, 1ms]
+
+↳ setup — PUT /courses/CS313
+  PUT http://localhost:3000/courses/CS313 [200 OK, 178B, 2ms]
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [200 OK, 198B, 1ms]
+  ✓  Status code is 200 OK
+  ✓  Body result is "ERROR_INACTIVE_STUDENT"
+
+❏ 03 — Бүртгэлгүй оюутан бүртгүүлэхэд ERROR_NO_STUDENT
+↳ setup — PUT /courses/CS313
+  PUT http://localhost:3000/courses/CS313 [200 OK, 178B, 2ms]
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [200 OK, 192B, 2ms]
+  ✓  Status code is 200 OK
+  ✓  Body result is "ERROR_NO_STUDENT"
+
+❏ 04 — Байхгүй хичээлд бүртгүүлэхэд ERROR_NO_COURSE
+↳ setup — PUT /students/B231234567
+  PUT http://localhost:3000/students/B231234567 [200 OK, 178B, 4ms]
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [200 OK, 191B, 1ms]
+  ✓  Status code is 200 OK
+  ✓  Body result is "ERROR_NO_COURSE"
+
+❏ 05 — Урьдач нөхцөл огт үзээгүйд ERROR_PREREQUISITES (missing=CS201)
+↳ setup — PUT /students/B000000005
+  PUT http://localhost:3000/students/B000000005 [200 OK, 178B, 1ms]
+
+↳ setup — PUT /courses/CS313
+  PUT http://localhost:3000/courses/CS313 [200 OK, 178B, 2ms]
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [200 OK, 215B, 2ms]
+  ✓  Status code is 200 OK
+  ✓  Body result is "ERROR_PREREQUISITES"
+  ✓  missing is ["CS201"]
+
+❏ 06 — Хязгаар: урьдач нөхцөлгүй хичээлд бүртгүүлэх → 201 OK
+↳ setup — PUT /students/B000000006
+  PUT http://localhost:3000/students/B000000006 [200 OK, 178B, 2ms]
+
+↳ setup — PUT /courses/CS101
+  PUT http://localhost:3000/courses/CS101 [200 OK, 178B, 0µs]
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [201 Created, 203B, 1ms]
+  ✓  Status code is 201 Created
+  ✓  Body result is "OK"
+  ✓  registrationID is a positive number (exact value not asserted)
+
+❏ 07 — Хязгаар: хоосон coursesTaken → ERROR_PREREQUISITES (missing=CS201)
+↳ setup — PUT /students/B000000007
+  PUT http://localhost:3000/students/B000000007 [200 OK, 178B, 2ms]
+
+↳ setup — PUT /courses/CS313
+  PUT http://localhost:3000/courses/CS313 [200 OK, 178B, 1ms]
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [200 OK, 215B, 1ms]
+  ✓  Status code is 200 OK
+  ✓  Body result is "ERROR_PREREQUISITES"
+  ✓  missing is ["CS201"]
+
+❏ 08 — Хязгаар: courseID талбар дутуу → 400 ERROR_BAD_REQUEST
+↳ setup — PUT /students/B231234567
+  PUT http://localhost:3000/students/B231234567 [200 OK, 178B, 0µs]
+
+↳ setup — PUT /courses/CS313
+  PUT http://localhost:3000/courses/CS313 [200 OK, 178B, 1ms]
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [400 Bad Request, 202B, 0µs]
+  ✓  Status code is 400 Bad Request
+  ✓  Body result is "ERROR_BAD_REQUEST"
+
+❏ 09 — Давхар алдаа: идэвхгүй оюутан + байхгүй хичээл → ERROR_INACTIVE_STUDENT
+↳ setup — PUT /students/B000000009
+  PUT http://localhost:3000/students/B000000009 [200 OK, 178B, 1ms]
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [200 OK, 198B, 0µs]
+  ✓  Status code is 200 OK
+  ✓  Body result is "ERROR_INACTIVE_STUDENT"
+
+❏ 10 — Давхар алдаа: бүртгэлгүй оюутан + урьдач нөхцөл дутуу → ERROR_NO_STUDENT
+↳ setup — PUT /courses/CS313
+  PUT http://localhost:3000/courses/CS313 [200 OK, 178B, 1ms]
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [200 OK, 192B, 1ms]
+  ✓  Status code is 200 OK
+  ✓  Body result is "ERROR_NO_STUDENT"
+
+❏ 11 — Зарим урьдач нөхцөл хангагдахад ERROR_PREREQUISITES (missing=CS202)
+↳ setup — PUT /students/B000000011
+  PUT http://localhost:3000/students/B000000011 [200 OK, 178B, 1ms]
+
+↳ setup — PUT /courses/CS313
+  PUT http://localhost:3000/courses/CS313 [200 OK, 178B, 1ms]
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [200 OK, 215B, 1ms]
+  ✓  Status code is 200 OK
+  ✓  Body result is "ERROR_PREREQUISITES"
+  ✓  missing is ["CS202"]
+
+❏ 12 — Нийтийн API (нэмэлт): GET /users → 3 oracle
+↳ GET https://jsonplaceholder.typicode.com/users
+  GET https://jsonplaceholder.typicode.com/users [200 OK, 6.6kB, 47ms]
+  ✓  Status code is 200 OK
+  ✓  Response body is a non-empty array
+  ✓  First user name is "Leanne Graham"
+
+┌─────────────────────────┬─────────────────┬─────────────────┐
+│                         │        executed │          failed │
+├─────────────────────────┼─────────────────┼─────────────────┤
+│              iterations │               1 │               0 │
+├─────────────────────────┼─────────────────┼─────────────────┤
+│                requests │              30 │               0 │
+├─────────────────────────┼─────────────────┼─────────────────┤
+│            test-scripts │              12 │               0 │
+├─────────────────────────┼─────────────────┼─────────────────┤
+│      prerequest-scripts │               0 │               0 │
+├─────────────────────────┼─────────────────┼─────────────────┤
+│              assertions │              30 │               1 │
+├─────────────────────────┴─────────────────┴─────────────────┤
+│ total run duration: 396ms                                   │
+├─────────────────────────────────────────────────────────────┤
+│ total data received: 6.33kB (approx)                        │
+├─────────────────────────────────────────────────────────────┤
+│ average response time: 3ms [min: 1ms, max: 47ms, s.d.: 8ms] │
+└─────────────────────────────────────────────────────────────┘
+
+[31m  # [39m[31m failure        [39m[31m detail                                                                                           [39m
+[90m    [39m[90m                [39m[90m                                                                                                  [39m
+ 1.  AssertionError  Status code is 200 OK                                                                            
+                     expected response to have status code 200 but got 201                                            
+                     at assertion:0 in test-script                                                                    
+                     inside "01 — Happy path: идэвхтэй оюутан, урьдач нөхцөл хангасан → 201 OK / POST /registrations" 
