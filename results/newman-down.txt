@@ -156,32 +156,50 @@ Lab05 — Хичээлд бүртгүүлэх API (F.CSA313)
  55. Body result is "ERROR_PREREQUISITES"
  56. missing is ["CS202"]
 
-❏ 12 — Нийтийн API (нэмэлт): GET /users → 3 oracle
+❏ 12 — Хязгаар: эвдэрсэн JSON → 400 ERROR_BAD_JSON
+↳ POST /registrations
+  POST http://localhost:3000/registrations [errored]
+     connect ECONNREFUSED 127.0.0.1:3000
+ 58. Status code is 400 Bad Request
+ 59. Body result is "ERROR_BAD_JSON"
+
+❏ 13 — Хязгаар: хоосон мөр studentID="" → 400 ERROR_BAD_REQUEST
+↳ setup — PUT /courses/CS313
+  PUT http://localhost:3000/courses/CS313 [errored]
+     connect ECONNREFUSED 127.0.0.1:3000
+
+↳ POST /registrations
+  POST http://localhost:3000/registrations [errored]
+     connect ECONNREFUSED 127.0.0.1:3000
+ 62. Status code is 400 Bad Request
+ 63. Body result is "ERROR_BAD_REQUEST"
+
+❏ 14 — Нийтийн API (нэмэлт): GET /users → 3 oracle
 ↳ GET https://jsonplaceholder.typicode.com/users
-  GET https://jsonplaceholder.typicode.com/users [200 OK, 6.6kB, 61ms]
+  GET https://jsonplaceholder.typicode.com/users [200 OK, 6.61kB, 212ms]
   ✓  Status code is 200 OK
   ✓  Response body is a non-empty array
   ✓  First user name is "Leanne Graham"
 
-┌─────────────────────────┬──────────────────┬──────────────────┐
-│                         │         executed │           failed │
-├─────────────────────────┼──────────────────┼──────────────────┤
-│              iterations │                1 │                0 │
-├─────────────────────────┼──────────────────┼──────────────────┤
-│                requests │               30 │               29 │
-├─────────────────────────┼──────────────────┼──────────────────┤
-│            test-scripts │               12 │                0 │
-├─────────────────────────┼──────────────────┼──────────────────┤
-│      prerequest-scripts │                0 │                0 │
-├─────────────────────────┼──────────────────┼──────────────────┤
-│              assertions │               30 │               27 │
-├─────────────────────────┴──────────────────┴──────────────────┤
-│ total run duration: 387ms                                     │
-├───────────────────────────────────────────────────────────────┤
-│ total data received: 5.65kB (approx)                          │
-├───────────────────────────────────────────────────────────────┤
-│ average response time: 2ms [min: 61ms, max: 61ms, s.d.: 10ms] │
-└───────────────────────────────────────────────────────────────┘
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                33 │                32 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                14 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                 0 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │                34 │                31 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 576ms                                       │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 5.65kB (approx)                            │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 6ms [min: 212ms, max: 212ms, s.d.: 36ms] │
+└─────────────────────────────────────────────────────────────────┘
 
 [31m   # [39m[31m failure        [39m[31m detail                                                                                                       [39m
 [90m     [39m[90m                [39m[90m                                                                                                              [39m
@@ -464,3 +482,38 @@ Lab05 — Хичээлд бүртгүүлэх API (F.CSA313)
                       "undefined" is not valid JSON                                                                                
                       at assertion:2 in test-script                                                                                
                       inside "11 — Зарим урьдач нөхцөл хангагдахад ERROR_PREREQUISITES (missing=CS202) / POST /registrations"      
+[90m     [39m[90m                [39m[90m                                                                                                              [39m
+ 57.  Error                                                                                                                        
+                      connect ECONNREFUSED 127.0.0.1:3000                                                                          
+                      at request                                                                                                   
+                      inside ""                                                                                                    
+[90m     [39m[90m                [39m[90m                                                                                                              [39m
+ 58.  AssertionError  Status code is 400 Bad Request                                                                               
+                      expected PostmanResponse{ …(5) } to have property 'code'                                                     
+                      at assertion:0 in test-script                                                                                
+                      inside "12 — Хязгаар: эвдэрсэн JSON → 400 ERROR_BAD_JSON / POST /registrations"                              
+[90m     [39m[90m                [39m[90m                                                                                                              [39m
+ 59.  JSONError       Body result is "ERROR_BAD_JSON"                                                                              
+                      "undefined" is not valid JSON                                                                                
+                      at assertion:1 in test-script                                                                                
+                      inside "12 — Хязгаар: эвдэрсэн JSON → 400 ERROR_BAD_JSON / POST /registrations"                              
+[90m     [39m[90m                [39m[90m                                                                                                              [39m
+ 60.  Error                                                                                                                        
+                      connect ECONNREFUSED 127.0.0.1:3000                                                                          
+                      at request                                                                                                   
+                      inside ""                                                                                                    
+[90m     [39m[90m                [39m[90m                                                                                                              [39m
+ 61.  Error                                                                                                                        
+                      connect ECONNREFUSED 127.0.0.1:3000                                                                          
+                      at request                                                                                                   
+                      inside ""                                                                                                    
+[90m     [39m[90m                [39m[90m                                                                                                              [39m
+ 62.  AssertionError  Status code is 400 Bad Request                                                                               
+                      expected PostmanResponse{ …(5) } to have property 'code'                                                     
+                      at assertion:0 in test-script                                                                                
+                      inside "13 — Хязгаар: хоосон мөр studentID="" → 400 ERROR_BAD_REQUEST / POST /registrations"                 
+[90m     [39m[90m                [39m[90m                                                                                                              [39m
+ 63.  JSONError       Body result is "ERROR_BAD_REQUEST"                                                                           
+                      "undefined" is not valid JSON                                                                                
+                      at assertion:1 in test-script                                                                                
+                      inside "13 — Хязгаар: хоосон мөр studentID="" → 400 ERROR_BAD_REQUEST / POST /registrations"                 

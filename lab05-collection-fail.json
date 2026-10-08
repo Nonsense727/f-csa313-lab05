@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "b7e3f1a2-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
     "name": "Lab05 — Хичээлд бүртгүүлэх API (F.CSA313) — FAIL хувилбар",
-    "description": "⚠️ ЭНЭ БОЛ ЗОРИУД БУРУУ ХУВИЛБАР. Тест 01-ийн статус oracle нь 201-ийн оронд 200 хүлээж байна — Newman-ы FAIL (exit code 1) гаралтыг харуулах зорилготой.\n\nЛекц 5-ын тест дизайны 5 алхам — POST /registrations функц.\n\nТест бүр БИЕ ДААСАН: өөрийн setup PUT хүсэлтүүдээ өөрөө хийнэ (Лекц 4-ийн test independence).\nregistrationID-ийн яг утгыг шалгахгүй — сервер in-memory тул ажиллуулах бүрд хуримтлагдана.\n\nНийт спецификаци: 11 (+1 нэмэлт нийтийн API) · нийт oracle: 30",
+    "description": "⚠️ ЭНЭ БОЛ ЗОРИУД БУРУУ ХУВИЛБАР. Тест 01-ийн статус oracle нь 201-ийн оронд 200 хүлээж байна — Newman-ы FAIL (exit code 1) гаралтыг харуулах зорилготой.\n\nЛекц 5-ын тест дизайны 5 алхам — POST /registrations функц.\n\nТест бүр БИЕ ДААСАН: өөрийн setup PUT хүсэлтүүдээ өөрөө хийнэ (Лекц 4-ийн test independence).\nregistrationID-ийн яг утгыг шалгахгүй — сервер in-memory тул ажиллуулах бүрд хуримтлагдана.\n\nНийт спецификаци: 13 (+1 нэмэлт нийтийн API) · нийт oracle: 34",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1275,7 +1275,155 @@
       ]
     },
     {
-      "name": "12 — Нийтийн API (нэмэлт): GET /users → 3 oracle",
+      "name": "12 — Хязгаар: эвдэрсэн JSON → 400 ERROR_BAD_JSON",
+      "description": "S12 — F1b (хүчингүй JSON) · AI харьцуулалтаар нэмэгдсэн",
+      "item": [
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 400 Bad Request",
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"ERROR_BAD_JSON\"",
+                  "pm.test(\"Body result is \\\"ERROR_BAD_JSON\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"ERROR_BAD_JSON\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"studentID\": \"B231234567\", ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "Хүсэлтийн бие нь хүчингүй JSON — сервер JSON.parse хийж чадахгүй тул 400 ERROR_BAD_JSON буцаана."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "13 — Хязгаар: хоосон мөр studentID=\"\" → 400 ERROR_BAD_REQUEST",
+      "description": "S13 — F5b (хоосон мөр) · AI харьцуулалтаар нэмэгдсэн",
+      "item": [
+        {
+          "name": "setup — PUT /courses/CS313",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses/CS313",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "CS313"
+              ]
+            },
+            "description": "Setup хүсэлт (S13 — F5b (хоосон мөр) · AI харьцуулалтаар нэмэгдсэн).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 400 Bad Request",
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"ERROR_BAD_REQUEST\"",
+                  "pm.test(\"Body result is \\\"ERROR_BAD_REQUEST\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"ERROR_BAD_REQUEST\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"\",\n  \"courseID\": \"CS313\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "studentID нь хоосон мөр. Хичээл нь байгаа тул хэрэв хоосон мөрийн шалгалт ажиллахгүй бол ERROR_NO_STUDENT буцах байсан — тест нь ялгааг харуулна."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "14 — Нийтийн API (нэмэлт): GET /users → 3 oracle",
       "description": "Даалгавар 5 (нэмэлт гүнзгийрэл). GET-only тул setup шаардлагагүй. Ажиллуулахад интернет холболт шаардана.",
       "item": [
         {
