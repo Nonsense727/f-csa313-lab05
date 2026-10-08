@@ -2,15 +2,16 @@
   "info": {
     "_postman_id": "b7e3f1a2-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
     "name": "Lab05 — Хичээлд бүртгүүлэх API (F.CSA313)",
-    "description": "Лекц 5-ын тест дизайны 5 алхам — POST /registrations функц.\n\nТест бүр БИЕ ДААСАН: өөрийн setup PUT хүсэлтүүдээ өөрөө хийнэ (Лекц 4-ийн test independence).\nregistrationID-ийн яг утгыг шалгахгүй — сервер in-memory тул ажиллуулах бүрд хуримтлагдана.",
+    "description": "Лекц 5-ын тест дизайны 5 алхам — POST /registrations функц.\n\nТест бүр БИЕ ДААСАН: өөрийн setup PUT хүсэлтүүдээ өөрөө хийнэ (Лекц 4-ийн test independence).\nregistrationID-ийн яг утгыг шалгахгүй — сервер in-memory тул ажиллуулах бүрд хуримтлагдана.\n\nНийт спецификаци: 11 (+1 нэмэлт нийтийн API) · нийт oracle: 30",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
       "name": "01 — Happy path: идэвхтэй оюутан, урьдач нөхцөл хангасан → 201 OK",
+      "description": "S1 — F1a·F2a·F3a·F4b",
       "item": [
         {
-          "name": "setup — PUT /students/B231234567 (active, took CS201)",
+          "name": "setup — PUT /students/B231234567",
           "event": [],
           "request": {
             "method": "PUT",
@@ -20,15 +21,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\"CS201\"]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
               "raw": "{{baseUrl}}/students/B231234567",
               "host": [
@@ -39,12 +31,21 @@
                 "B231234567"
               ]
             },
-            "description": "Setup: идэвхтэй, CS201 үзсэн оюутан үүсгэх."
+            "description": "Setup хүсэлт (S1 — F1a·F2a·F3a·F4b).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "response": []
         },
         {
-          "name": "setup — PUT /courses/CS313 (prerequisites: CS201)",
+          "name": "setup — PUT /courses/CS313",
           "event": [],
           "request": {
             "method": "PUT",
@@ -54,15 +55,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"prerequisites\": [\"CS201\"]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
               "raw": "{{baseUrl}}/courses/CS313",
               "host": [
@@ -73,26 +65,42 @@
                 "CS313"
               ]
             },
-            "description": "Setup: CS201 урьдач нөхцөлтэй CS313 хичээл үүсгэх."
+            "description": "Setup хүсэлт (S1 — F1a·F2a·F3a·F4b).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           },
           "response": []
         },
         {
-          "name": "POST /registrations — 201 ба result=OK",
+          "name": "POST /registrations",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "// Oracle 1 — статус код",
+                  "// Oracle 1 — Status code is 201 Created",
                   "pm.test(\"Status code is 201 Created\", function () {",
                   "  pm.response.to.have.status(201);",
                   "});",
                   "",
-                  "// Oracle 2 — хариуны утга",
+                  "// Oracle 2 — Body result is \"OK\"",
                   "pm.test(\"Body result is \\\"OK\\\"\", function () {",
                   "  pm.expect(pm.response.json().result).to.eql(\"OK\");",
+                  "});",
+                  "",
+                  "// Oracle 3 — registrationID is a positive number (exact value not asserted)",
+                  "pm.test(\"registrationID is a positive number (exact value not asserted)\", function () {",
+                  "  const id = pm.response.json().registrationID;",
+                  "  pm.expect(id, \"registrationID must be present\").to.be.a(\"number\");",
+                  "  pm.expect(id).to.be.above(0);",
                   "});"
                 ]
               }
@@ -124,7 +132,1197 @@
                 "registrations"
               ]
             },
-            "description": "Тестлэгдэх функц. Идэвхтэй оюутан CS201 үзсэн, CS313-д CS201 шаарддаг → амжилттай бүртгэл."
+            "description": "Идэвхтэй оюутан CS201 үзсэн; CS313 нь CS201 шаарддаг → амжилттай бүртгэл."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 — Идэвхгүй оюутан бүртгүүлэхэд ERROR_INACTIVE_STUDENT",
+      "description": "S2 — F1b",
+      "item": [
+        {
+          "name": "setup — PUT /students/B000000002",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students/B000000002",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "B000000002"
+              ]
+            },
+            "description": "Setup хүсэлт (S2 — F1b).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"inactive\",\n  \"coursesTaken\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "setup — PUT /courses/CS313",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses/CS313",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "CS313"
+              ]
+            },
+            "description": "Setup хүсэлт (S2 — F1b).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 200 OK",
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"ERROR_INACTIVE_STUDENT\"",
+                  "pm.test(\"Body result is \\\"ERROR_INACTIVE_STUDENT\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"ERROR_INACTIVE_STUDENT\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B000000002\",\n  \"courseID\": \"CS313\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "Оюутан бүртгэлтэй ч status=\"inactive\" → бүртгэл хийгдэхгүй."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 — Бүртгэлгүй оюутан бүртгүүлэхэд ERROR_NO_STUDENT",
+      "description": "S3 — F1c",
+      "item": [
+        {
+          "name": "setup — PUT /courses/CS313",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses/CS313",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "CS313"
+              ]
+            },
+            "description": "Setup хүсэлт (S3 — F1c).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 200 OK",
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"ERROR_NO_STUDENT\"",
+                  "pm.test(\"Body result is \\\"ERROR_NO_STUDENT\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"ERROR_NO_STUDENT\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B000000003\",\n  \"courseID\": \"CS313\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "B000000003 оюутан хаана ч үүсгэгдээгүй — бие даасан тест."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 — Байхгүй хичээлд бүртгүүлэхэд ERROR_NO_COURSE",
+      "description": "S4 — F3b",
+      "item": [
+        {
+          "name": "setup — PUT /students/B231234567",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students/B231234567",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "B231234567"
+              ]
+            },
+            "description": "Setup хүсэлт (S4 — F3b).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 200 OK",
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"ERROR_NO_COURSE\"",
+                  "pm.test(\"Body result is \\\"ERROR_NO_COURSE\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"ERROR_NO_COURSE\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B231234567\",\n  \"courseID\": \"CS999\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "CS999 хичээл үүсгэгдээгүй."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 — Урьдач нөхцөл огт үзээгүйд ERROR_PREREQUISITES (missing=CS201)",
+      "description": "S5 — F2b·F4c",
+      "item": [
+        {
+          "name": "setup — PUT /students/B000000005",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students/B000000005",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "B000000005"
+              ]
+            },
+            "description": "Setup хүсэлт (S5 — F2b·F4c).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\n    \"CS101\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "setup — PUT /courses/CS313",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses/CS313",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "CS313"
+              ]
+            },
+            "description": "Setup хүсэлт (S5 — F2b·F4c).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 200 OK",
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"ERROR_PREREQUISITES\"",
+                  "pm.test(\"Body result is \\\"ERROR_PREREQUISITES\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"ERROR_PREREQUISITES\");",
+                  "});",
+                  "",
+                  "// Oracle 3 — missing is [\"CS201\"]",
+                  "pm.test(\"missing is [\\\"CS201\\\"]\", function () {",
+                  "  pm.expect(pm.response.json().missing).to.eql([\"CS201\"]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B000000005\",\n  \"courseID\": \"CS313\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "Оюутан CS101 үзсэн ч CS313-д шаардлагатай CS201 байхгүй."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 — Хязгаар: урьдач нөхцөлгүй хичээлд бүртгүүлэх → 201 OK",
+      "description": "S6 — F4a (хязгаарын тохиолдол)",
+      "item": [
+        {
+          "name": "setup — PUT /students/B000000006",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students/B000000006",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "B000000006"
+              ]
+            },
+            "description": "Setup хүсэлт (S6 — F4a (хязгаарын тохиолдол)).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "setup — PUT /courses/CS101",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses/CS101",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "CS101"
+              ]
+            },
+            "description": "Setup хүсэлт (S6 — F4a (хязгаарын тохиолдол)).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 201 Created",
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"OK\"",
+                  "pm.test(\"Body result is \\\"OK\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"OK\");",
+                  "});",
+                  "",
+                  "// Oracle 3 — registrationID is a positive number (exact value not asserted)",
+                  "pm.test(\"registrationID is a positive number (exact value not asserted)\", function () {",
+                  "  const id = pm.response.json().registrationID;",
+                  "  pm.expect(id, \"registrationID must be present\").to.be.a(\"number\");",
+                  "  pm.expect(id).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B000000006\",\n  \"courseID\": \"CS101\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "Хичээл урьдач нөхцөлгүй, оюутан юу ч үзээгүй — бүртгэл амжилттай."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07 — Хязгаар: хоосон coursesTaken → ERROR_PREREQUISITES (missing=CS201)",
+      "description": "S7 — F2b (хязгаарын тохиолдол)",
+      "item": [
+        {
+          "name": "setup — PUT /students/B000000007",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students/B000000007",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "B000000007"
+              ]
+            },
+            "description": "Setup хүсэлт (S7 — F2b (хязгаарын тохиолдол)).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "setup — PUT /courses/CS313",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses/CS313",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "CS313"
+              ]
+            },
+            "description": "Setup хүсэлт (S7 — F2b (хязгаарын тохиолдол)).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 200 OK",
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"ERROR_PREREQUISITES\"",
+                  "pm.test(\"Body result is \\\"ERROR_PREREQUISITES\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"ERROR_PREREQUISITES\");",
+                  "});",
+                  "",
+                  "// Oracle 3 — missing is [\"CS201\"]",
+                  "pm.test(\"missing is [\\\"CS201\\\"]\", function () {",
+                  "  pm.expect(pm.response.json().missing).to.eql([\"CS201\"]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B000000007\",\n  \"courseID\": \"CS313\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "coursesTaken талбарыг хоосон массив болгож өгсөн."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "08 — Хязгаар: courseID талбар дутуу → 400 ERROR_BAD_REQUEST",
+      "description": "S8 — F5b (хязгаарын тохиолдол)",
+      "item": [
+        {
+          "name": "setup — PUT /students/B231234567",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students/B231234567",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "B231234567"
+              ]
+            },
+            "description": "Setup хүсэлт (S8 — F5b (хязгаарын тохиолдол)).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "setup — PUT /courses/CS313",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses/CS313",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "CS313"
+              ]
+            },
+            "description": "Setup хүсэлт (S8 — F5b (хязгаарын тохиолдол)).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 400 Bad Request",
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"ERROR_BAD_REQUEST\"",
+                  "pm.test(\"Body result is \\\"ERROR_BAD_REQUEST\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"ERROR_BAD_REQUEST\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B231234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "Хүсэлтийн биед зөвхөн studentID байна — courseID дутуу."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "09 — Давхар алдаа: идэвхгүй оюутан + байхгүй хичээл → ERROR_INACTIVE_STUDENT",
+      "description": "S9 — F1b·F3b (давхар алдаа)",
+      "item": [
+        {
+          "name": "setup — PUT /students/B000000009",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students/B000000009",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "B000000009"
+              ]
+            },
+            "description": "Setup хүсэлт (S9 — F1b·F3b (давхар алдаа)).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"inactive\",\n  \"coursesTaken\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 200 OK",
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"ERROR_INACTIVE_STUDENT\"",
+                  "pm.test(\"Body result is \\\"ERROR_INACTIVE_STUDENT\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"ERROR_INACTIVE_STUDENT\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B000000009\",\n  \"courseID\": \"CS998\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "Хоёр алдаа зэрэг байна: оюутан идэвхгүй, хичээл (CS998) байхгүй. Сервер оюутанг түрүүлж шалгадаг тул ERROR_INACTIVE_STUDENT буцна."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10 — Давхар алдаа: бүртгэлгүй оюутан + урьдач нөхцөл дутуу → ERROR_NO_STUDENT",
+      "description": "S10 — F1c·F4b (давхар алдаа)",
+      "item": [
+        {
+          "name": "setup — PUT /courses/CS313",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses/CS313",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "CS313"
+              ]
+            },
+            "description": "Setup хүсэлт (S10 — F1c·F4b (давхар алдаа)).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 200 OK",
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"ERROR_NO_STUDENT\"",
+                  "pm.test(\"Body result is \\\"ERROR_NO_STUDENT\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"ERROR_NO_STUDENT\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B000000010\",\n  \"courseID\": \"CS313\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "Оюутан байхгүй, мөн урьдач нөхцөл хангагдахгүй. Сервер оюутанг түрүүлж шалгадаг тул ERROR_NO_STUDENT буцна."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "11 — Зарим урьдач нөхцөл хангагдахад ERROR_PREREQUISITES (missing=CS202)",
+      "description": "S11 — F2c·F4d",
+      "item": [
+        {
+          "name": "setup — PUT /students/B000000011",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students/B000000011",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "students",
+                "B000000011"
+              ]
+            },
+            "description": "Setup хүсэлт (S11 — F2c·F4d).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\n    \"CS201\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "setup — PUT /courses/CS313",
+          "event": [],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/courses/CS313",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "courses",
+                "CS313"
+              ]
+            },
+            "description": "Setup хүсэлт (S11 — F2c·F4d).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": [\n    \"CS201\",\n    \"CS202\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /registrations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — Status code is 200 OK",
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Oracle 2 — Body result is \"ERROR_PREREQUISITES\"",
+                  "pm.test(\"Body result is \\\"ERROR_PREREQUISITES\\\"\", function () {",
+                  "  pm.expect(pm.response.json().result).to.eql(\"ERROR_PREREQUISITES\");",
+                  "});",
+                  "",
+                  "// Oracle 3 — missing is [\"CS202\"]",
+                  "pm.test(\"missing is [\\\"CS202\\\"]\", function () {",
+                  "  pm.expect(pm.response.json().missing).to.eql([\"CS202\"]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B000000011\",\n  \"courseID\": \"CS313\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            },
+            "description": "CS313 нь CS201 ба CS202 шаарддаг; оюутан зөвхөн CS201 үзсэн → зөвхөн CS202 дутагдана."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "12 — Нийтийн API (нэмэлт): GET /users → 3 oracle",
+      "description": "Даалгавар 5 (нэмэлт гүнзгийрэл). GET-only тул setup шаардлагагүй. Ажиллуулахад интернет холболт шаардана.",
+      "item": [
+        {
+          "name": "GET https://jsonplaceholder.typicode.com/users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1 — статус код",
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Oracle 2 — хариу массив эсэх",
+                  "pm.test(\"Response body is a non-empty array\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.be.an(\"array\");",
+                  "  pm.expect(body.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "// Oracle 3 — эхний хэрэглэгчийн нэр",
+                  "pm.test(\"First user name is \\\"Leanne Graham\\\"\", function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body[0].name).to.eql(\"Leanne Graham\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://jsonplaceholder.typicode.com/users",
+              "protocol": "https",
+              "host": [
+                "jsonplaceholder",
+                "typicode",
+                "com"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "description": "Нийтийн, GET-only API. Setup шаардлагагүй."
           },
           "response": []
         }
